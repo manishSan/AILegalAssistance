@@ -1,0 +1,68 @@
+{{ '-' * 70 }}
+DEMAND LETTER
+{{ '-' * 70 }}
+
+Date: {{ case.date_filed }}
+
+To: {% if defendant_ic %}{{ defendant_ic.name }}{% elif defendant %}{{ defendant.name }}{% else %}Claims Department{% endif %}
+
+Re: Claim for Damages – Case {{ case.case_id }} ({{ case.case_type }})
+
+Dear Claims Adjuster,
+
+Please accept this demand letter on behalf of our client, {% if plaintiff %}{{ plaintiff.name }}{% else %}the Plaintiff{% endif %}, arising from the motor vehicle collision that occurred on {{ timeline[0].event_date if timeline else 'the accident date' }}. Liability is clear based on the attached police report and admissions by the defendant.
+
+Facts and Liability
+- According to the police report and witness statements, liability rests with the defendant. See citations below.
+{% for c in liability_citations %}
+  • {{ c.source }}
+    "{{ c.snippet }}"
+{% endfor %}
+
+Injuries and Medical Treatment
+- Our client suffered injuries including those diagnosed and treated by Dr. Jones.
+- Medical expenses and treatment chronology are summarized below.
+
+Medical Evidence Citations
+{% for c in med_citations %}
+  • {{ c.source }}
+    "{{ c.snippet }}"
+{% endfor %}
+
+Wage Loss
+- Our client missed time from work and incurred lost wages.
+
+Wage Documentation Citations
+{% for c in wage_citations %}
+  • {{ c.source }}
+    "{{ c.snippet }}"
+{% endfor %}
+
+Pain and Suffering
+- Our client experienced pain, limitations in activities of daily living, and ongoing symptoms.
+
+Supporting Citations
+{% for c in pain_suffering_citations %}
+  • {{ c.source }}
+    "{{ c.snippet }}"
+{% endfor %}
+
+Damages Summary
+- Medical expenses (known): ${{ '%.2f' % financials.total_medical }}
+- Lost wages (known): ${{ '%.2f' % financials.lost_wages }}
+- Total economic damages (known): ${{ '%.2f' % financials.total_known }}
+- General damages (pain and suffering): to be negotiated consistent with liability and injury severity.
+
+Demand
+In light of the clear liability and the documented damages, we hereby demand a settlement in the amount of ${{ '%.2f' % (financials.total_known * 3 if financials.total_known else 35000) }}. This figure reflects medical expenses, lost wages, and a reasonable sum for pain and suffering given the injuries and impairment.
+
+Please respond within 15 days from the date of this letter. If we do not receive a timely response, we will proceed accordingly, including filing a lawsuit to protect our client’s rights.
+
+Sincerely,
+
+Attorney for Plaintiff
+
+Citations Index
+- Medical Records: see pages cited above.
+- Police Report: see pages cited above.
+- Wage Statements: see pages cited above.

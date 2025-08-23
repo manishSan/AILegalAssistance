@@ -1,0 +1,35 @@
+[project]
+name = "ai-engineer-coding-challenge"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pdfminer.six>=20231228",
+    "scikit-learn>=1.3.0",
+    "jinja2>=3.1.4",
+    "openai>=1.30.0",
+    "tiktoken>=0.7.0",
+    "reportlab>=4.2.5",
+    "modelcontextprotocol>=0.1.0",
+    "mcp>=0.1.0",
+    "psycopg[binary]>=3.2.1",
+]
+
+[project.scripts]
+legal-ai = "main:main"
+legal-ai-mcp = "app.mcp_server:main"
+
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["docker*", "outputs*", "templates*", "sample_docs*", ".*", "*.pdf"]

@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    container_name: legal-ai-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: legal_case_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d legal_case_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
