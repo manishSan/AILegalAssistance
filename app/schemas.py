@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
-
+from pathlib import Path
 
 class Citation(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -55,3 +55,9 @@ class DemandLetter(BaseModel):
     non_economic_damages: Section
     demand: DemandInfo
     citations: List[Citation] = Field(default_factory=list)
+
+    @staticmethod
+    def md_example() -> str:
+        example_file_path = Path(__file__).parent.parent / "README.md"
+        with open(example_file_path) as f:
+            return f.read()

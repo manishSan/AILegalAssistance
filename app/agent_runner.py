@@ -46,12 +46,15 @@ async def _run_agent(case_id: str, out_path: Path, model: Optional[str]) -> Path
 
         # Provide JSON Schema for strict structured output
         # schema = DemandLetter.model_json_schema()
+        example = DemandLetter.md_example()
         prompt = (
             f"Draft a comprehensive demand letter for case {case_id}. "
             "Use MCP tools to retrieve accurate details: parties (get_case_details), documents (get_case_documents), timeline (get_case_timeline), financials (get_financial_summary). "
             "Call `search_citations` with focused queries (e.g., 'police report collision description', 'Dr. Jones medical records', 'wage loss documentation') to gather sources/snippets and populate the `citations` array. "
             "Output MUST be valid JSON conforming to the DemandLetter schema. Do not include any text before or after the JSON."
         )
+
+        prompt += f"Here is an example of DemandLetter - {example}"
 
         try:
             result = await Runner.run(starting_agent=agent, input=prompt)

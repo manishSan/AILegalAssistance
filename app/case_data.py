@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Any, Dict, List, Optional
 
-from .db_pg import get_conn, fetch_all_dicts
+from app.db_pg import get_conn, fetch_all_dicts
 
 
 class CaseData:
@@ -31,31 +31,28 @@ class CaseData:
     def get_case_timeline(self, case_id: str, event_type: Optional[str] = None) -> List[Dict[str, Any]]:
         with get_conn() as conn, conn.cursor() as cur:
             if event_type:
-                return fetch_all_dicts(cur, "SELECT * FROM timeline WHERE case_id = %s AND event_type = %s ORDER BY event_date", [case_id, event_type])
-            return fetch_all_dicts(cur, "SELECT * FROM timeline WHERE case_id = %s ORDER BY event_date", [case_id])
+                return fetch_all_dicts(cur, "SELECT * FROM case_events WHERE case_id = %s AND event_type = %s ORDER BY event_date", [case_id, event_type])
+            return fetch_all_dicts(cur, "SELECT * FROM case_events WHERE case_id = %s ORDER BY event_date", [case_id])
 
-    # 4. get_financial_summary
-    def get_financial_summary(self, case_id: str) -> Dict[str, Any]:
+    # 4. Get parties data
+    def get_parties_data(self, case_id: str, party_type: Optional[str] = None) -> List[Dict[str, Any]]:
         with get_conn() as conn, conn.cursor() as cur:
-            meds = fetch_all_dicts(cur, "SELECT amount FROM medical_bills WHERE case_id = %s", [case_id])
-            wages = fetch_all_dicts(cur, "SELECT amount FROM lost_wages WHERE case_id = %s", [case_id])
-            total_medical = sum(x.get("amount", 0) or 0 for x in meds)
-            lost_wages = sum(x.get("amount", 0) or 0 for x in wages)
-            return {
-                "total_medical": float(total_medical),
-                "lost_wages": float(lost_wages),
-                "total_known": float(total_medical + lost_wages),
-            }
+            if party_type:
+                return fetch_all_dicts(cur, query="SELECT * FROM parties WHERE case_id = %s AND party_type = %s", params=[case_id, party_type])
+            return fetch_all_dicts(cur, query="SELECT * FROM parties WHERE case_id = %s", params=[case_id])
 
-    # 5. search_similar_cases (toy example)
-    def search_similar_cases(self, case_type: str, keywords: List[str]) -> List[Dict[str, Any]]:
-        with get_conn() as conn, conn.cursor() as cur:
-            rows = fetch_all_dicts(cur, "SELECT case_id, case_type, summary FROM similar_cases WHERE case_type = %s", [case_type])
-            scores: Dict[str, int] = defaultdict(int)
-            for r in rows:
-                text = (r.get("summary") or "").lower()
-                for kw in keywords:
-                    if kw.lower() in text:
-                        scores[r["case_id"]] += 1
-            ordered = sorted(rows, key=lambda r: scores.get(r["case_id"], 0), reverse=True)
-            return ordered[:5]
+
+if __name__ == "__main__":
+    data = CaseData()
+    # test
+    # docs = data.get_case_documents(case_id="2024-PI-001")
+    # import app.util as u
+    # out = u.json_dumps(docs)
+    # print(out)
+
+
+    # out = data.get_case_timeline(case_id="2024-PI-001")
+    # print(out)
+
+    out = data.get_parties_data("2024-PI-001")
+    print(out)
